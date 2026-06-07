@@ -14,14 +14,14 @@ load_dotenv(dotenv_path=os.path.join(root_dir, ".env"))
 
 # Database Configuration
 DB_HOST = os.getenv("DB_HOST", "localhost")
-DB_PORT = os.getenv("DB_PORT", "3306")
+DB_PORT = os.getenv("DB_PORT", "33007")
 DB_USER = os.getenv("DB_USER", "root")
 DB_PASSWORD = os.getenv("DB_PASSWORD", "")
 DB_NAME = os.getenv("DB_NAME", "vehicle_sales_db")
 
 # CSV & Ingestion Configuration
 CSV_FILE_PATH = os.path.join(root_dir, "data", "car_prices.csv")
-MAX_ROWS = 50000
+MAX_ROWS = 500
 
 
 def connect_mysql():
