@@ -55,6 +55,46 @@ const muiDarkTheme = createTheme({
         },
       },
     },
+    MuiMenu: {
+      styleOverrides: {
+        paper: {
+          backgroundColor: '#0f1520',
+          color: '#f8fafc',
+          border: '1px solid #172033',
+          borderRadius: '12px',
+          boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1)',
+          backgroundImage: 'none',
+          overflow: 'hidden',
+        },
+        list: {
+          paddingTop: '4px',
+          paddingBottom: '4px',
+        },
+      },
+    },
+    MuiMenuItem: {
+      styleOverrides: {
+        root: {
+          margin: '2px 4px',
+          borderRadius: '8px',
+          color: '#94a3b8',
+          fontSize: '14px',
+          fontWeight: 500,
+          textTransform: 'capitalize',
+          '&:hover': {
+            backgroundColor: 'rgba(255, 255, 255, 0.03)',
+            color: '#f8fafc',
+          },
+          '&.Mui-selected': {
+            backgroundColor: 'rgba(59, 130, 246, 0.14)',
+            color: '#f8fafc',
+          },
+          '&.Mui-selected:hover': {
+            backgroundColor: 'rgba(59, 130, 246, 0.2)',
+          },
+        },
+      },
+    },
     MuiInputLabel: {
       styleOverrides: {
         root: {
@@ -141,9 +181,11 @@ export default function App() {
               anchorEl={navMenuAnchorEl}
               open={navMenuOpen}
               onClose={handleNavMenuClose}
-              MenuListProps={{ 'aria-label': 'Main navigation' }}
               anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
               transformOrigin={{ vertical: 'top', horizontal: 'right' }}
+              MenuListProps={{
+                'aria-label': 'Main navigation',
+              }}
             >
               {navTabs.map((tab) => (
                 <MenuItem

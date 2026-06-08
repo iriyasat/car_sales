@@ -560,6 +560,37 @@ input, select, textarea, button {
 }
 
 @media (max-width: 767px) {
+  .container {
+    padding: 0 16px;
+  }
+
+  .grid {
+    gap: 16px;
+  }
+
+  .grid-cols-3,
+  .grid-cols-2-1 {
+    grid-template-columns: 1fr;
+  }
+
+  .navbar {
+    padding: 12px 0;
+  }
+
+  .brand {
+    gap: 8px;
+    min-width: 0;
+  }
+
+  .brand-title {
+    font-size: 14px;
+  }
+
+  .brand-subtitle {
+    font-size: 9px;
+    letter-spacing: 0.8px;
+  }
+
   .nav-links {
     display: none;
   }
@@ -578,6 +609,10 @@ input, select, textarea, button {
 
   .nav-mobile-menu-wrap {
     margin-left: auto;
+  }
+
+  .main-content {
+    padding: 24px 0;
   }
 
   .report-actions {
@@ -753,6 +788,19 @@ input, select, textarea, button {
 @media (min-width: 768px) {
   .footer-container {
     flex-direction: row;
+  }
+}
+
+@media (max-width: 767px) {
+  .footer-container {
+    align-items: center;
+    text-align: center;
+  }
+
+  .footer-links {
+    flex-wrap: wrap;
+    justify-content: center;
+    row-gap: 8px;
   }
 }
 

@@ -196,6 +196,115 @@
   overflow: visible;
 }
 
+@media (max-width: 767px) {
+  .container {
+    padding: 0 16px;
+  }
+
+  .main-content {
+    padding: 24px 0;
+  }
+
+  .section-header {
+    margin-bottom: 16px;
+  }
+
+  .section-title {
+    font-size: 20px;
+    line-height: 1.2;
+  }
+
+  .section-desc {
+    font-size: 13px;
+  }
+
+  .card {
+    padding: 16px;
+  }
+
+  .dashboard-kpi-grid,
+  .dashboard-charts-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+    margin-bottom: 16px;
+  }
+
+  .kpi-card-header {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .kpi-value {
+    font-size: 24px;
+  }
+
+  .kpi-card-trend {
+    margin-top: 10px;
+    line-height: 1.4;
+  }
+
+  .card-title {
+    font-size: 14px;
+    margin-bottom: 12px;
+  }
+
+  .brand-chart-container {
+    height: auto;
+    padding: 8px 4px 0;
+    display: flex;
+    align-items: flex-end;
+    justify-content: flex-start;
+    gap: 12px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    flex-wrap: nowrap;
+  }
+
+  .brand-chart-col {
+    flex: 0 0 72px;
+  }
+
+  .brand-chart-bar-element {
+    width: 24px;
+  }
+
+  .brand-chart-value {
+    font-size: 8px;
+  }
+
+  .brand-chart-label {
+    font-size: 10px;
+    line-height: 1.2;
+    min-height: 24px;
+    white-space: normal;
+  }
+
+  .pie-chart-container {
+    height: auto;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 16px;
+  }
+
+  .pie-chart-legend {
+    width: 100%;
+    max-height: none;
+    padding-right: 0;
+    font-size: 10px;
+  }
+
+  .line-chart-outer-container {
+    height: auto;
+    overflow-x: auto;
+    justify-content: flex-start;
+  }
+
+  .line-chart-svg {
+    min-width: 420px;
+  }
+}
+
 /* Data Listing Page */
 .table-controls-bar {
   padding: 16px;
