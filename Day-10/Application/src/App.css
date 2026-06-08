@@ -1,1 +1,415 @@
-/* Overridden by index.css */
+/* App Layout Container styles */
+.app-container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.brand-text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.2;
+}
+
+.brand-title {
+  font-size: 16px;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+}
+
+.brand-subtitle {
+  font-size: 10px;
+  color: var(--color-primary);
+  font-weight: 600;
+  letter-spacing: 1px;
+}
+
+.nav-link-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-transform: capitalize;
+}
+
+.footer-subtitle {
+  font-size: 12px;
+  color: var(--color-text-muted);
+  display: block;
+  margin-top: 2px;
+}
+
+.footer-separator {
+  color: var(--color-card-border);
+}
+
+.footer-badge {
+  color: var(--color-success);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* Dashboard styles */
+.dashboard-kpi-grid {
+  margin-bottom: 32px;
+}
+
+.kpi-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.kpi-card-title {
+  margin-bottom: 8px;
+}
+
+.kpi-card-trend {
+  margin-top: 12px;
+}
+
+.dashboard-charts-grid {
+  margin-bottom: 24px;
+}
+
+.relative {
+  position: relative;
+}
+
+.icon-blue {
+  color: #3b82f6;
+  margin-right: 6px;
+}
+
+.icon-green {
+  color: #10b981;
+  margin-right: 6px;
+}
+
+.icon-purple {
+  color: #8b5cf6;
+  margin-right: 6px;
+}
+
+/* Brand Chart */
+.brand-chart-container {
+  height: 220px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  padding: 10px 20px;
+}
+
+.brand-chart-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 1;
+}
+
+.brand-chart-value {
+  font-size: 9px;
+  color: #94a3b8;
+  margin-bottom: 6px;
+}
+
+.brand-chart-bar-element {
+  width: 28px;
+  background-color: #3b82f6;
+  border-radius: 4px 4px 0 0;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.brand-chart-bar-element:hover {
+  background-color: #60a5fa;
+  box-shadow: 0 0 10px rgba(59, 130, 246, 0.5);
+}
+
+.brand-chart-label {
+  font-size: 11px;
+  color: #cbd5e1;
+  margin-top: 8px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  width: 100%;
+  text-align: center;
+}
+
+/* Pie Chart */
+.pie-chart-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  height: 220px;
+  flex-wrap: wrap;
+}
+
+.overflow-visible {
+  overflow: visible;
+}
+
+.cursor-pointer {
+  cursor: pointer;
+}
+
+.pie-chart-legend {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 11px;
+  max-height: 200px;
+  overflow-y: auto;
+  padding-right: 6px;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.legend-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.legend-label {
+  color: #cbd5e1;
+}
+
+.legend-count {
+  color: #94a3b8;
+}
+
+/* Line Chart */
+.line-chart-outer-container {
+  height: 200px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.line-chart-svg {
+  overflow: visible;
+}
+
+/* Data Listing Page */
+.table-controls-bar {
+  padding: 16px;
+  flex-direction: column;
+  align-items: stretch;
+}
+
+.table-controls-inner {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.search-grow {
+  flex-grow: 1;
+  min-width: 280px;
+}
+
+.vin-badge-absolute {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 11px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  border-radius: 4px;
+}
+
+.vin-badge-match {
+  background-color: rgba(16, 185, 129, 0.15);
+  color: #10b981;
+}
+
+.vin-badge-detected {
+  background-color: rgba(239, 68, 68, 0.15);
+  color: #ef4444;
+}
+
+.index-search-info {
+  margin-top: 12px;
+  padding: 8px 12px;
+  background-color: rgba(59, 130, 246, 0.08);
+  border: 1px solid rgba(59, 130, 246, 0.2);
+  border-radius: 6px;
+  font-size: 12px;
+  color: #93c5fd;
+}
+
+/* Column Widths & Helper Alignment Styles */
+.col-width-80 { width: 80px; }
+.col-width-120 { width: 120px; }
+.col-width-130 { width: 130px; }
+.col-width-200 { width: 200px; }
+.col-width-250 { width: 250px; }
+.col-width-300 { width: 300px; }
+
+.text-right { text-align: right; }
+.text-center { text-align: center; }
+
+.font-semibold { font-weight: 600; }
+.font-bold { font-weight: 700; }
+.font-mono { font-family: monospace; font-size: 12px; }
+
+.col-primary { color: #3b82f6; }
+.col-success { color: #10b981; }
+.col-warning { color: #f59e0b; }
+.col-muted { color: #94a3b8; }
+.nowrap { white-space: nowrap; }
+
+.pagination-label {
+  align-self: center;
+  font-size: 13px;
+  margin: 0 8px;
+  color: #94a3b8;
+}
+
+/* Report Page */
+.report-controls-bar {
+  padding: 18px;
+}
+
+.report-filters-inner {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  align-items: center;
+}
+
+.filter-col {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.filter-label-text {
+  font-size: 11px;
+  color: #94a3b8;
+  text-transform: uppercase;
+}
+
+.report-actions-btn-group {
+  display: flex;
+  gap: 8px;
+  margin-top: auto;
+}
+
+.report-tabs-bar {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+}
+
+.report-preview-card {
+  margin-bottom: 24px;
+  padding: 20px;
+}
+
+.preview-title {
+  font-size: 14px;
+  color: #f8fafc;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.preview-empty-state {
+  height: 100px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #94a3b8;
+  font-size: 13px;
+}
+
+.report-chart-outer {
+  height: 140px;
+  display: flex;
+  align-items: flex-end;
+  gap: 16px;
+  padding-left: 16px;
+  padding-right: 16px;
+  border-bottom: 1px solid var(--color-card-border);
+  padding-bottom: 10px;
+  overflow-x: auto;
+}
+
+.report-chart-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 1;
+  min-width: 60px;
+}
+
+.report-chart-col-model {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 1;
+  min-width: 70px;
+}
+
+.report-chart-val {
+  font-size: 9px;
+  margin-bottom: 4px;
+}
+
+.report-chart-val-brand { color: #94a3b8; }
+.report-chart-val-model { color: #10b981; }
+.report-chart-val-month { color: #f59e0b; }
+.report-chart-val-weekday { color: #a855f7; }
+
+.report-chart-bar-base {
+  width: 100%;
+  border-radius: 4px 4px 0 0;
+  transition: all 0.2s ease;
+}
+
+.report-chart-bar-primary {
+  background-color: var(--color-primary);
+}
+
+.report-chart-bar-success {
+  background-color: #10b981;
+}
+
+.report-chart-bar-warning {
+  background-color: #f59e0b;
+}
+
+.report-chart-bar-purple {
+  background-color: #a855f7;
+}
+
+.report-chart-lbl {
+  font-size: 11px;
+  color: #cbd5e1;
+  margin-top: 6px;
+  text-align: center;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  width: 100%;
+}
+
+.report-chart-lbl-small {
+  font-size: 10px;
+}
