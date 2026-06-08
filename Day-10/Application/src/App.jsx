@@ -1,7 +1,77 @@
 import React, { useState, useMemo } from 'react';
-import { DollarSign, Car, TrendingUp, BarChart2, PieChart, LineChart, Search, ChevronDown, ChevronUp, SlidersHorizontal, Sparkles, Download, Table2 } from 'lucide-react';
+import { DollarSign, Car, TrendingUp, BarChart2, PieChart, LineChart, Search, Menu as MenuIcon, ChevronDown, ChevronUp, SlidersHorizontal, Sparkles, Download, Table2 } from 'lucide-react';
+import IconButton from '@mui/material/IconButton';
+import Menu from '@mui/material/Menu';
+import MenuItem from '@mui/material/MenuItem';
+import { createTheme, ThemeProvider } from '@mui/material/styles';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+import dayjs from 'dayjs';
 import salesDataRaw from './data/car_sales_500.json';
 import './App.css';
+
+// MUI Dark Theme configuration to match our dashboard aesthetics
+const muiDarkTheme = createTheme({
+  palette: {
+    mode: 'dark',
+    primary: {
+      main: '#3b82f6',
+    },
+    background: {
+      default: '#131a26',
+      paper: '#131a26',
+    },
+    text: {
+      primary: '#f8fafc',
+      secondary: '#94a3b8',
+    },
+  },
+  typography: {
+    fontFamily: 'inherit',
+  },
+  components: {
+    MuiOutlinedInput: {
+      styleOverrides: {
+        root: {
+          backgroundColor: '#131a26',
+          borderRadius: '6px',
+          fontSize: '13px',
+          color: '#f8fafc',
+          height: '38px',
+          width: '160px',
+          '& .MuiOutlinedInput-notchedOutline': {
+            borderColor: '#1e293b',
+          },
+          '&:hover .MuiOutlinedInput-notchedOutline': {
+            borderColor: '#3b82f6',
+          },
+          '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+            borderColor: '#3b82f6',
+          },
+        },
+        input: {
+          fontSize: '13px',
+        },
+      },
+    },
+    MuiInputLabel: {
+      styleOverrides: {
+        root: {
+          color: '#94a3b8',
+          fontSize: '13px',
+          transform: 'translate(14px, 8px) scale(1)',
+          '&.MuiInputLabel-shrink': {
+            transform: 'translate(14px, -9px) scale(0.75)',
+          },
+          '&.Mui-focused': {
+            color: '#3b82f6',
+          },
+        },
+      },
+    },
+  },
+});
 
 // ==========================================
 // 1. COORDINATOR / APP MAIN COMPONENT
@@ -9,6 +79,26 @@ import './App.css';
 export default function App() {
   const [currentTab, setCurrentTab] = useState('dashboard');
   const [salesData] = useState(salesDataRaw);
+  const [navMenuAnchorEl, setNavMenuAnchorEl] = useState(null);
+  const navTabs = [
+    { value: 'dashboard', label: 'dashboard' },
+    { value: 'data', label: 'Inventory Table' },
+    { value: 'reports', label: 'reports' },
+  ];
+  const navMenuOpen = Boolean(navMenuAnchorEl);
+
+  const handleNavMenuOpen = (event) => {
+    setNavMenuAnchorEl(event.currentTarget);
+  };
+
+  const handleNavMenuClose = () => {
+    setNavMenuAnchorEl(null);
+  };
+
+  const handleNavTabChange = (tabValue) => {
+    setCurrentTab(tabValue);
+    handleNavMenuClose();
+  };
 
   // Tab Router (only 3 pages: Dashboard, Inventory Table, Pivot Reports)
   const renderContent = () => {
@@ -35,10 +125,41 @@ export default function App() {
               <span className="brand-subtitle">REPORTING</span>
             </div>
           </a>
+          <div className="nav-mobile-menu-wrap">
+            <IconButton
+              className="nav-mobile-menu-button"
+              aria-label="Open navigation menu"
+              aria-controls={navMenuOpen ? 'mobile-nav-menu' : undefined}
+              aria-haspopup="true"
+              aria-expanded={navMenuOpen ? 'true' : undefined}
+              onClick={handleNavMenuOpen}
+            >
+              <MenuIcon size={20} aria-hidden="true" />
+            </IconButton>
+            <Menu
+              id="mobile-nav-menu"
+              anchorEl={navMenuAnchorEl}
+              open={navMenuOpen}
+              onClose={handleNavMenuClose}
+              MenuListProps={{ 'aria-label': 'Main navigation' }}
+              anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+              transformOrigin={{ vertical: 'top', horizontal: 'right' }}
+            >
+              {navTabs.map((tab) => (
+                <MenuItem
+                  key={tab.value}
+                  selected={currentTab === tab.value}
+                  onClick={() => handleNavTabChange(tab.value)}
+                >
+                  {tab.label}
+                </MenuItem>
+              ))}
+            </Menu>
+          </div>
           <div className="nav-links">
-            {['dashboard', 'data', 'reports'].map(tab => (
-              <button key={tab} className={`nav-link ${currentTab === tab ? 'active' : ''} nav-link-btn`} onClick={() => setCurrentTab(tab)}>
-                {tab === 'data' ? 'Inventory Table' : tab}
+            {navTabs.map(tab => (
+              <button key={tab.value} className={`nav-link ${currentTab === tab.value ? 'active' : ''} nav-link-btn`} onClick={() => setCurrentTab(tab.value)}>
+                {tab.label}
               </button>
             ))}
           </div>
@@ -539,14 +660,26 @@ function ReportPage({ salesData }) {
             <label className="filter-label-text">Body Category</label>
             <select className="filter-select" value={filterCategory} onChange={(e) => setFilterCategory(e.target.value)}>{bodyCategories.map(c => <option key={c} value={c}>{c}</option>)}</select>
           </div>
-          <div className="filter-col">
-            <label className="filter-label-text">Start Date</label>
-            <input type="date" className="filter-select" value={startDate} onChange={(e) => setStartDate(e.target.value)} />
-          </div>
-          <div className="filter-col">
-            <label className="filter-label-text">End Date</label>
-            <input type="date" className="filter-select" value={endDate} onChange={(e) => setEndDate(e.target.value)} />
-          </div>
+          <ThemeProvider theme={muiDarkTheme}>
+            <LocalizationProvider dateAdapter={AdapterDayjs}>
+              <div className="filter-col">
+                <label className="filter-label-text">Start Date</label>
+                <DatePicker
+                  value={startDate ? dayjs(startDate) : null}
+                  onChange={(newValue) => setStartDate(newValue && newValue.isValid() ? newValue.format('YYYY-MM-DD') : '')}
+                  slotProps={{ textField: { size: 'small', variant: 'outlined', placeholder: 'YYYY-MM-DD' } }}
+                />
+              </div>
+              <div className="filter-col">
+                <label className="filter-label-text">End Date</label>
+                <DatePicker
+                  value={endDate ? dayjs(endDate) : null}
+                  onChange={(newValue) => setEndDate(newValue && newValue.isValid() ? newValue.format('YYYY-MM-DD') : '')}
+                  slotProps={{ textField: { size: 'small', variant: 'outlined', placeholder: 'YYYY-MM-DD' } }}
+                />
+              </div>
+            </LocalizationProvider>
+          </ThemeProvider>
         </div>
         <div className="report-actions-btn-group"><button className="btn btn-primary" onClick={handleExport}><Download size={14} /> Export Pivot to CSV</button></div>
       </div>

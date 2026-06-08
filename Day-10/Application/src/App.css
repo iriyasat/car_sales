@@ -280,6 +280,7 @@
 
 /* Report Page */
 .report-controls-bar {
+  width: 100%;
   padding: 18px;
 }
 
@@ -287,7 +288,24 @@
   display: flex;
   flex-wrap: wrap;
   gap: 16px;
-  align-items: center;
+  align-items: flex-end;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.report-filters-inner .filter-col {
+  flex: 1 1 180px;
+  min-width: 160px;
+}
+
+.report-filters-inner .filter-select {
+  width: 100%;
+  min-width: 0;
+}
+
+.report-filters-inner .MuiFormControl-root {
+  width: 100%;
+  min-width: 0;
 }
 
 .filter-col {
@@ -297,7 +315,9 @@
 }
 
 .filter-label-text {
-  font-size: 11px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
   color: #94a3b8;
   text-transform: uppercase;
 }
@@ -306,6 +326,33 @@
   display: flex;
   gap: 8px;
   margin-top: auto;
+  flex-shrink: 0;
+}
+
+.report-actions-btn-group .btn {
+  min-width: 180px;
+  font-size: 14px;
+  height: 42px;
+}
+
+.report-controls-bar .MuiPickersSectionList-sectionContent,
+.report-controls-bar .MuiInputBase-input {
+  font-size: 14px;
+}
+
+.report-controls-bar .MuiPickersInputBase-root {
+  min-height: 42px;
+}
+
+@media (max-width: 767px) {
+  .report-actions-btn-group {
+    width: 100%;
+    margin-top: 4px;
+  }
+
+  .report-actions-btn-group .btn {
+    width: 100%;
+  }
 }
 
 .report-tabs-bar {
@@ -412,4 +459,9 @@
 
 .report-chart-lbl-small {
   font-size: 10px;
+}
+
+/* Ensure MUI DatePicker text input has consistent 13px font size */
+.MuiOutlinedInput-input {
+  font-size: 13px !important;
 }

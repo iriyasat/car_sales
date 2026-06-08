@@ -47,6 +47,10 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
+input, select, textarea, button {
+  font-family: inherit;
+}
+
 #root {
   display: flex;
   flex-direction: column;
@@ -120,6 +124,7 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 16px;
 }
 
 .brand {
@@ -149,6 +154,20 @@ body {
   display: flex;
   align-items: center;
   gap: 8px;
+}
+
+.nav-mobile-menu-wrap {
+  display: none;
+}
+
+.nav-mobile-menu-button {
+  color: var(--color-text-main) !important;
+  border: 1px solid var(--color-card-border) !important;
+  background-color: var(--color-card-bg) !important;
+  border-radius: var(--radius-sm) !important;
+  width: 44px;
+  height: 44px;
+  flex-shrink: 0;
 }
 
 .nav-link {
@@ -422,9 +441,10 @@ body {
   background-color: var(--color-card-bg);
   color: var(--color-text-main);
   border: 1px solid var(--color-card-border);
-  padding: 10px 16px;
+  height: 38px;
+  padding: 0 12px;
   border-radius: var(--radius-sm);
-  font-size: 14px;
+  font-size: 13px;
   outline: none;
   cursor: pointer;
   transition: var(--transition);
@@ -443,8 +463,9 @@ body {
   background-color: var(--color-card-border);
   color: var(--color-text-main);
   border: 1px solid transparent;
-  padding: 10px 16px;
-  font-size: 14px;
+  height: 38px;
+  padding: 0 16px;
+  font-size: 13px;
   font-weight: 500;
   border-radius: var(--radius-sm);
   cursor: pointer;
@@ -533,8 +554,42 @@ body {
 @media (min-width: 768px) {
   .report-actions {
     flex-direction: row;
-    align-items: center;
+    align-items: flex-end;
     justify-content: space-between;
+  }
+}
+
+@media (max-width: 767px) {
+  .nav-links {
+    display: none;
+  }
+
+  .nav-mobile-menu-wrap {
+    display: block;
+  }
+
+  .nav-container {
+    flex-wrap: wrap;
+  }
+
+  .brand {
+    flex: 1 1 auto;
+  }
+
+  .nav-mobile-menu-wrap {
+    margin-left: auto;
+  }
+
+  .report-actions {
+    align-items: stretch;
+  }
+
+  .report-filters-inner {
+    width: 100%;
+  }
+
+  .filter-col {
+    min-width: 0;
   }
 }
 
