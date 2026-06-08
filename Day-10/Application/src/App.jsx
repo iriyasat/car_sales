@@ -117,15 +117,32 @@ const muiDarkTheme = createTheme({
 // 1. COORDINATOR / APP MAIN COMPONENT
 // ==========================================
 export default function App() {
-  const [currentTab, setCurrentTab] = useState('dashboard');
+  const getTabFromHash = () => {
+    const hash = window.location.hash.replace(/^#\/?/, '');
+    return ['dashboard', 'data', 'reports'].includes(hash) ? hash : 'dashboard';
+  };
+
+  const [currentTab, setCurrentTab] = useState(getTabFromHash());
   const [salesData] = useState(salesDataRaw);
   const [navMenuAnchorEl, setNavMenuAnchorEl] = useState(null);
   const navTabs = [
-    { value: 'dashboard', label: 'dashboard' },
+    { value: 'dashboard', label: 'Dashboard' },
     { value: 'data', label: 'Inventory Table' },
-    { value: 'reports', label: 'reports' },
+    { value: 'reports', label: 'Reports' },
   ];
   const navMenuOpen = Boolean(navMenuAnchorEl);
+
+  React.useEffect(() => {
+    const handleHashChange = () => {
+      setCurrentTab(getTabFromHash());
+    };
+    window.addEventListener('hashchange', handleHashChange);
+    // Sync initial hash on mount
+    if (!window.location.hash || window.location.hash === '#') {
+      window.location.hash = 'dashboard';
+    }
+    return () => window.removeEventListener('hashchange', handleHashChange);
+  }, []);
 
   const handleNavMenuOpen = (event) => {
     setNavMenuAnchorEl(event.currentTarget);
@@ -136,7 +153,7 @@ export default function App() {
   };
 
   const handleNavTabChange = (tabValue) => {
-    setCurrentTab(tabValue);
+    window.location.hash = tabValue;
     handleNavMenuClose();
   };
 
@@ -158,7 +175,7 @@ export default function App() {
     <div className="app-container">
       <nav className="navbar">
         <div className="container nav-container">
-          <a href="#" className="brand" onClick={(e) => { e.preventDefault(); setCurrentTab('dashboard'); }}>
+          <a href="#dashboard" className="brand">
             <div className="brand-icon">🚗</div>
             <div className="brand-text">
               <span className="brand-title">AUTOMETRIC</span>
@@ -200,9 +217,9 @@ export default function App() {
           </div>
           <div className="nav-links">
             {navTabs.map(tab => (
-              <button key={tab.value} className={`nav-link ${currentTab === tab.value ? 'active' : ''} nav-link-btn`} onClick={() => setCurrentTab(tab.value)}>
+              <a key={tab.value} href={`#${tab.value}`} className={`nav-link ${currentTab === tab.value ? 'active' : ''}`}>
                 {tab.label}
-              </button>
+              </a>
             ))}
           </div>
         </div>
@@ -212,8 +229,8 @@ export default function App() {
         <div className="container footer-container">
           <div><strong>Car Sales Reporting System</strong> — Day 10<span className="footer-subtitle">Built by Ibrahim Hasan & Marzia</span></div>
           <div className="footer-links">
-            <a href="#" onClick={(e) => { e.preventDefault(); setCurrentTab('data'); }}>Data Source</a>
-            <a href="#" onClick={(e) => { e.preventDefault(); setCurrentTab('reports'); }}>Excel Pivots</a>
+            <a href="#data">Data Source</a>
+            <a href="#reports">Excel Pivots</a>
             <span className="footer-separator">|</span>
             <span className="footer-badge"><Sparkles size={12} /> 500 Records Verified</span>
           </div>

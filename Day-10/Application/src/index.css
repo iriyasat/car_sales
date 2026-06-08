@@ -628,6 +628,54 @@ input, select, textarea, button {
   }
 }
 
+/* Mobile: table controls improvements */
+@media (max-width: 767px) {
+  .table-controls-bar {
+    padding: 12px;
+  }
+
+  .table-controls-inner {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    align-items: stretch;
+  }
+
+  .search-input-wrapper {
+    width: 100%;
+  }
+
+  .search-input {
+    width: 100%;
+    padding: 10px 14px 10px 42px;
+    font-size: 14px;
+  }
+
+  .filters-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    align-items: stretch;
+  }
+
+  .filter-select {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .report-actions-btn-group {
+    width: 100%;
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+  }
+
+  .report-actions-btn-group .btn {
+    width: 100%;
+    min-width: 0;
+  }
+}
+
 /* Admin Dashboard & Logs Panel */
 .admin-console {
   background-color: #030712;
@@ -652,6 +700,25 @@ input, select, textarea, button {
 .console-line.success { color: #10b981; }
 .console-line.warning { color: #f59e0b; }
 .console-line.error { color: #ef4444; }
+
+/* Force MUI popover/menu paper to use app dark surface (portal rendered) */
+.MuiPopover-paper.MuiMenu-paper,
+.MuiPaper-root.MuiMenu-paper,
+.MuiMenu-paper {
+  background-color: #0f1520 !important;
+  color: var(--color-text-main) !important;
+  border: 1px solid #172033 !important;
+  box-shadow: var(--shadow-lg) !important;
+  background-image: none !important;
+}
+
+.MuiList-root.MuiMenu-list {
+  background-color: transparent !important;
+}
+
+.MuiMenuItem-root {
+  color: var(--color-text-muted) !important;
+}
 
 /* CSV Ingestion Simulation UI */
 .file-upload-area {
