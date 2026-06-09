@@ -113,6 +113,10 @@ const muiDarkTheme = createTheme({
   },
 });
 
+const updateLocationHash = (hash) => {
+  window.location.hash = hash;
+};
+
 // ==========================================
 // 1. COORDINATOR / APP MAIN COMPONENT
 // ==========================================
@@ -139,7 +143,7 @@ export default function App() {
     window.addEventListener('hashchange', handleHashChange);
     // Sync initial hash on mount
     if (!window.location.hash || window.location.hash === '#') {
-      window.location.hash = 'dashboard';
+      updateLocationHash('dashboard');
     }
     return () => window.removeEventListener('hashchange', handleHashChange);
   }, []);
@@ -153,7 +157,7 @@ export default function App() {
   };
 
   const handleNavTabChange = (tabValue) => {
-    window.location.hash = tabValue;
+    updateLocationHash(tabValue);
     handleNavMenuClose();
   };
 
@@ -292,18 +296,18 @@ function DashboardPage({ salesData }) {
     const total = modelData.reduce((s, d) => s + d.value, 0);
     const radius = 50;
     const circ = 2 * Math.PI * radius;
-    let acc = 0;
     const colors = [
       '#3b82f6', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899',
       '#38bdf8', '#a855f7', '#f43f5e', '#14b8a6', '#06b6d4',
       '#fb923c', '#facc15', '#4ade80', '#2dd4bf', '#94a3b8',
       '#cbd5e1'
     ];
+    const strokeLens = modelData.map(d => (d.value / total) * circ);
     return modelData.map((d, i) => {
       const pct = d.value / total;
-      const strokeLen = pct * circ;
-      const offset = circ - acc + (circ / 4);
-      acc += strokeLen;
+      const strokeLen = strokeLens[i];
+      const accVal = strokeLens.slice(0, i).reduce((sum, val) => sum + val, 0);
+      const offset = circ - accVal + (circ / 4);
       return { ...d, color: colors[i % colors.length], strokeLen, offset, pct };
     });
   }, [modelData]);
@@ -502,7 +506,6 @@ function DataPage({ salesData }) {
     return res;
   }, [salesData, searchTerm, filterMake, filterTrans, sortField, sortDirection, isVinSearch]);
 
-  useMemo(() => setCurrentPage(1), [searchTerm, filterMake, filterTrans]);
 
   const totalRows = processedData.length;
   const totalPages = Math.ceil(totalRows / rowsPerPage) || 1;
@@ -526,7 +529,7 @@ function DataPage({ salesData }) {
         <div className="table-controls-inner">
           <div className="search-input-wrapper search-grow">
             <Search size={18} className="search-icon" />
-            <input type="text" placeholder="Search by Brand, Model, or VIN..." className="search-input" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
+            <input type="text" placeholder="Search by Brand, Model, or VIN..." className="search-input" value={searchTerm} onChange={(e) => { setSearchTerm(e.target.value); setCurrentPage(1); }} />
             {isVinSearch && (
               <div className={`vin-badge-absolute ${isIndexMatch ? 'vin-badge-match' : 'vin-badge-detected'}`}>
                 <Sparkles size={10} /> {isIndexMatch ? 'Indexed VIN Match!' : 'VIN Detected'}
@@ -535,11 +538,11 @@ function DataPage({ salesData }) {
           </div>
           <div className="filters-group">
             <SlidersHorizontal size={14} className="col-muted" style={{ marginRight: '6px' }} />
-            <select className="filter-select" value={filterMake} onChange={(e) => setFilterMake(e.target.value)}>
+            <select className="filter-select" value={filterMake} onChange={(e) => { setFilterMake(e.target.value); setCurrentPage(1); }}>
               <option value="All">All Brands</option>
               {uniqueMakes.filter(m => m !== 'All').map(make => <option key={make} value={make}>{make}</option>)}
             </select>
-            <select className="filter-select" value={filterTrans} onChange={(e) => setFilterTrans(e.target.value)}>
+            <select className="filter-select" value={filterTrans} onChange={(e) => { setFilterTrans(e.target.value); setCurrentPage(1); }}>
               <option value="All">All Transmissions</option>
               <option value="Automatic">Automatic</option>
               <option value="Manual">Manual</option>
