@@ -1,0 +1,154 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
+    <meta http-equiv="X-UA-Compatible" content="ie=edge"/>
+    <title>{% block title %}Car Sales Hub{% endblock %}</title>
+    <!-- CSS files -->
+    <link href="{% static 'css/tabler.min.css' %}" rel="stylesheet"/>
+    <link href="{% static 'css/tabler-vendors.min.css' %}" rel="stylesheet"/>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap');
+      :root {
+        --tblr-font-sans-serif: 'Outfit', -apple-system, BlinkMacSystemFont, San Francisco, Segoe UI, Roboto, Helvetica Neue, sans-serif;
+      }
+      body {
+        font-feature-settings: "cv03", "cv04", "cv11";
+      }
+      .brand-title {
+        font-weight: 700;
+        letter-spacing: -0.5px;
+        background: linear-gradient(135deg, #00d2ff 0%, #ff007f 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+      }
+      .nav-item.active {
+        background-color: rgba(255, 255, 255, 0.05);
+        border-radius: 4px;
+      }
+    </style>
+    {% block extra_css %}{% endblock %}
+</head>
+<body class="layout-fluid" data-bs-theme="dark">
+    <div class="page">
+        <!-- Sidebar -->
+        <aside class="navbar navbar-vertical navbar-expand-lg" data-bs-theme="dark">
+            <div class="container-fluid">
+                <!-- Hamburger Menu Toggler (Visible on mobile) -->
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#sidebar-menu" aria-controls="sidebar-menu" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                
+                <!-- Brand Title -->
+                <h1 class="navbar-brand navbar-brand-autodark">
+                    <a href="{% url 'cars:dashboard' %}" class="text-decoration-none">
+                        <span class="brand-title fs-2">🚗 AutoSales Hub</span>
+                    </a>
+                </h1>
+                
+                <!-- Sidebar Menu Tabs -->
+                <div class="collapse navbar-collapse" id="sidebar-menu">
+                    <ul class="navbar-nav pt-lg-3">
+                        <li class="nav-item {% if request.resolver_match.view_name == 'cars:dashboard' %}active{% endif %} mb-1">
+                            <a class="nav-link" href="{% url 'cars:dashboard' %}">
+                                <span class="nav-link-icon d-md-none d-lg-inline-block">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                        <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                                        <path d="M5 12l-2 0l9 -9l9 9l-2 0" />
+                                        <path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7" />
+                                        <path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6" />
+                                    </svg>
+                                </span>
+                                <span class="nav-link-title">Dashboard</span>
+                            </a>
+                        </li>
+                        <li class="nav-item {% if request.resolver_match.view_name == 'cars:inventory' %}active{% endif %} mb-1">
+                            <a class="nav-link" href="{% url 'cars:inventory' %}">
+                                <span class="nav-link-icon d-md-none d-lg-inline-block">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                        <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                                        <path d="M12 3l8 4.5l0 9l-8 4.5l-8 -4.5l0 -9z" />
+                                        <path d="M12 12l8 -4.5" />
+                                        <path d="M12 12l0 9" />
+                                        <path d="M12 12l-8 -4.5" />
+                                        <path d="M16 5.25l-8 4.5" />
+                                    </svg>
+                                </span>
+                                <span class="nav-link-title">Inventory Database</span>
+                            </a>
+                        </li>
+                        <li class="nav-item {% if request.resolver_match.view_name == 'cars:analytics' %}active{% endif %} mb-1">
+                            <a class="nav-link" href="{% url 'cars:analytics' %}">
+                                <span class="nav-link-icon d-md-none d-lg-inline-block">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                        <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                                        <path d="M3 3v18h18" />
+                                        <path d="M20 18v-8a1 1 0 0 0 -1 -1h-2a1 1 0 0 0 -1 1v8" />
+                                        <path d="M14 18v-3a1 1 0 0 0 -1 -1h-2a1 1 0 0 0 -1 1v3" />
+                                        <path d="M8 18v-5a1 1 0 0 0 -1 -1h-2a1 1 0 0 0 -1 1v5" />
+                                    </svg>
+                                </span>
+                                <span class="nav-link-title">Reporting & Analytics</span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main content area -->
+        <div class="page-wrapper">
+            <!-- Page header -->
+            <div class="page-header d-print-none mt-0 pt-3">
+                <div class="container-xl">
+                    <div class="row g-2 align-items-center">
+                        <div class="col">
+                            <!-- Page pre-title -->
+                            <div class="page-pretitle">{% block pretitle %}Overview{% endblock %}</div>
+                            <h2 class="page-title">{% block pagetitle %}Dashboard{% endblock %}</h2>
+                        </div>
+                        <!-- Page header actions -->
+                        <div class="col-auto ms-auto d-print-none">
+                            {% block header_actions %}{% endblock %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Page body -->
+            <div class="page-body flex-grow-1">
+                <div class="container-xl">
+                    {% block content %}{% endblock %}
+                </div>
+            </div>
+
+            <footer class="footer footer-transparent d-print-none mt-auto">
+                <div class="container-xl">
+                    <div class="row text-center align-items-center flex-row-reverse">
+                        <div class="col-lg-auto ms-lg-auto">
+                            <ul class="list-inline list-inline-dots mb-0">
+                                <li class="list-inline-item">Django Practice Project</li>
+                                <li class="list-inline-item">Tabler v1.4.0</li>
+                            </ul>
+                        </div>
+                        <div class="col-12 col-lg-auto mt-3 mt-lg-0">
+                            <ul class="list-inline list-inline-dots mb-0">
+                                <li class="list-inline-item">
+                                    Copyright &copy; 2026
+                                    <a href="https://iriyasat.dev" class="link-secondary">Ibrahim Hasan</a>. All rights reserved.
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </footer>
+        </div>
+    </div>
+
+    <!-- Tabler Core JS -->
+    <script src="{% static 'js/tabler.min.js' %}" defer></script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

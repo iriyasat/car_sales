@@ -1,0 +1,363 @@
+{% extends "base.html" %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}Reports | AutoSales Hub{% endblock %}
+{% block pretitle %}Reporting{% endblock %}
+{% block pagetitle %}Aggregated Pivot Reports{% endblock %}
+
+{% block extra_css %}
+<!-- Include Flatpickr CSS -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/material_dark.css">
+<style>
+  .filter-label-text {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    color: #94a3b8;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+    display: block;
+  }
+  .custom-filter-input {
+    background-color: #131a26 !important;
+    border: 1px solid #1e293b !important;
+    border-radius: 6px !important;
+    font-size: 13px !important;
+    color: #f8fafc !important;
+    height: 38px !important;
+    padding: 8px 12px;
+    width: 100%;
+  }
+  .custom-filter-input:hover, .custom-filter-input:focus {
+    border-color: #3b82f6 !important;
+    background-color: #131a26 !important;
+    color: #f8fafc !important;
+    box-shadow: none !important;
+  }
+  .flatpickr-date {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' class='icon' width='24' height='24' viewBox='0 0 24 24' stroke-width='2' stroke='%2394a3b8' fill='none' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath stroke='none' d='M0 0h24v24H0z' fill='none'/%3E%3Cpath d='M4 7a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2z' /%3E%3Cpath d='M16 3v4' /%3E%3Cpath d='M8 3v4' /%3E%3Cpath d='M4 11h16' /%3E%3Cpath d='M11 15h1' /%3E%3Cpath d='M12 15v3' /%3E%3C/svg%3E") !important;
+    background-repeat: no-repeat !important;
+    background-position: right 12px center !important;
+    background-size: 16px 16px !important;
+    padding-right: 36px !important;
+  }
+  /* Style flatpickr dropdown container to match our dark theme */
+  .flatpickr-calendar {
+    background: #131a26 !important;
+    border: 1px solid #1e293b !important;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5) !important;
+  }
+  .flatpickr-day.selected, .flatpickr-day.startRange, .flatpickr-day.endRange, .flatpickr-day.selected.inRange, .flatpickr-day.startRange.inRange, .flatpickr-day.endRange.inRange, .flatpickr-day.selected:focus, .flatpickr-day.startRange:focus, .flatpickr-day.endRange:focus, .flatpickr-day.selected:hover, .flatpickr-day.startRange:hover, .flatpickr-day.endRange:hover, .flatpickr-day.selected.prevMonthDay, .flatpickr-day.selected.nextMonthDay {
+    background: #3b82f6 !important;
+    border-color: #3b82f6 !important;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="row row-cards">
+    <!-- Filter Controls Card -->
+    <div class="col-12">
+        <div class="card mb-3">
+            <div class="card-body">
+                <form method="get" action="{% url 'cars:analytics' %}" id="filter-form">
+                    <!-- Keep active pivot state -->
+                    <input type="hidden" name="pivot" id="pivot-input" value="{{ filters.pivot }}">
+                    
+                    <div class="row g-3 align-items-end">
+                        <!-- Body Category -->
+                        <div class="col-md-3">
+                            <label class="filter-label-text">Body Category</label>
+                            <select name="body" class="form-select custom-filter-input" onchange="document.getElementById('filter-form').submit();">
+                                <option value="All">All Categories</option>
+                                {% for cat in body_categories %}
+                                <option value="{{ cat }}" {% if filters.body == cat %}selected{% endif %}>{{ cat }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <!-- Start Date -->
+                        <div class="col-md-3">
+                            <label class="filter-label-text">Start Date</label>
+                            <input type="text" name="start_date" class="form-control custom-filter-input flatpickr-date" value="{{ filters.start_date }}" placeholder="YYYY-MM-DD">
+                        </div>
+                        <!-- End Date -->
+                        <div class="col-md-3">
+                            <label class="filter-label-text">End Date</label>
+                            <input type="text" name="end_date" class="form-control custom-filter-input flatpickr-date" value="{{ filters.end_date }}" placeholder="YYYY-MM-DD">
+                        </div>
+                        <!-- Export and Reset -->
+                        <div class="col-md-3 d-flex justify-content-end">
+                            <div class="btn-list">
+                                <a href="{% url 'cars:analytics' %}?pivot={{ filters.pivot }}" class="btn btn-outline-secondary">
+                                    Reset Filters
+                                </a>
+                                <a href="?body={{ filters.body }}&start_date={{ filters.start_date }}&end_date={{ filters.end_date }}&pivot={{ filters.pivot }}&export=csv" class="btn btn-primary">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2 -2v-2" /><path d="M7 11l5 5l5 -5" /><path d="M12 4l0 12" /></svg>
+                                    Export Pivot to CSV
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pivot Tabs -->
+    <div class="col-12">
+        <div class="card mb-3">
+            <div class="card-header">
+                <ul class="nav nav-tabs card-header-tabs" data-bs-toggle="tabs">
+                    <li class="nav-item">
+                        <a href="#tab-brand" class="nav-link {% if filters.pivot == 'brand' %}active{% endif %}" onclick="changePivot('brand')">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon me-1" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0" /><path d="M12 8v4" /><path d="M12 16h.01" /></svg>
+                            Pivot 1: Brand Sales
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#tab-model" class="nav-link {% if filters.pivot == 'model' %}active{% endif %}" onclick="changePivot('model')">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon me-1" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 4m0 2a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2z" /><path d="M9 9l6 6" /><path d="M15 9l-6 6" /></svg>
+                            Pivot 2: Model Volume
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#tab-month" class="nav-link {% if filters.pivot == 'month' %}active{% endif %}" onclick="changePivot('month')">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon me-1" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 5m0 2a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2z" /><path d="M16 3l0 4" /><path d="M8 3l0 4" /><path d="M4 11l16 0" /><path d="M11 15l1 0" /><path d="M12 15l0 3" /></svg>
+                            Pivot 3: Monthly Trend
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#tab-weekday" class="nav-link {% if filters.pivot == 'weekday' %}active{% endif %}" onclick="changePivot('weekday')">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon me-1" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0" /><path d="M12 7v5l3 3" /></svg>
+                            Pivot 4: Weekday Sales
+                        </a>
+                    </li>
+                </ul>
+            </div>
+            <div class="card-body">
+                <!-- Preview Chart -->
+                <div class="mb-4">
+                    <h3 class="card-title d-flex align-items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon text-primary me-2" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3 3v18h18" /><path d="M20 18v-8a1 1 0 0 0 -1 -1h-2a1 1 0 0 0 -1 1v8" /><path d="M14 18v-3a1 1 0 0 0 -1 -1h-2a1 1 0 0 0 -1 1v3" /><path d="M8 18v-5a1 1 0 0 0 -1 -1h-2a1 1 0 0 0 -1 1v5" /></svg>
+                        Report Visualization Preview
+                    </h3>
+                    <div id="pivot-chart" style="height: 280px;"></div>
+                </div>
+
+                <hr class="my-4">
+
+                <!-- Pivot Table -->
+                <div class="table-responsive">
+                    {% if filters.pivot == 'brand' %}
+                    <table class="table card-table table-vcenter text-nowrap table-hover">
+                        <thead>
+                            <tr>
+                                <th>Brand (Make)</th>
+                                <th class="text-end">Total Sales Revenue</th>
+                                <th class="text-end">Average Selling Price</th>
+                                <th class="text-end">Sales Count</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for r in brand_pivot %}
+                            <tr>
+                                <td class="font-weight-medium">{{ r.make }}</td>
+                                <td class="text-end text-green font-weight-semibold">${{ r.rev|intcomma }}</td>
+                                <td class="text-end text-blue">${{ r.avg|intcomma }}.00</td>
+                                <td class="text-end">{{ r.count }}</td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="4" class="text-center py-4 text-secondary">No records match the active filters.</td>
+                            </tr>
+                            {% endfor %}
+                            <tr class="bg-dark font-weight-bold" style="border-top: 2px solid rgba(255,255,255,0.15);">
+                                <td>Grand Total</td>
+                                <td class="text-end text-green">${{ brand_total_rev|intcomma }}</td>
+                                <td class="text-end text-blue">${{ brand_grand_avg|intcomma }}.00</td>
+                                <td class="text-end">{{ brand_total_count }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    {% elif filters.pivot == 'model' %}
+                    <table class="table card-table table-vcenter text-nowrap table-hover">
+                        <thead>
+                            <tr>
+                                <th>Brand (Make)</th>
+                                <th>Model</th>
+                                <th class="text-end">Sales Volume</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for r in model_pivot %}
+                            <tr>
+                                <td class="font-weight-medium">{{ r.make }}</td>
+                                <td>{{ r.model }}</td>
+                                <td class="text-end text-warning font-weight-semibold">{{ r.count }}.00</td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="3" class="text-center py-4 text-secondary">No records match the active filters.</td>
+                            </tr>
+                            {% endfor %}
+                            <tr class="bg-dark font-weight-bold" style="border-top: 2px solid rgba(255,255,255,0.15);">
+                                <td colspan="2">Top 15 Grand Total</td>
+                                <td class="text-end text-warning">{{ model_total_count }}.00</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    {% elif filters.pivot == 'month' %}
+                    <table class="table card-table table-vcenter text-nowrap table-hover">
+                        <thead>
+                            <tr>
+                                <th>saledate - Year-Month</th>
+                                <th class="text-end">Total Revenue</th>
+                                <th class="text-end">Count of Cars</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for r in month_pivot %}
+                            <tr>
+                                <td class="font-weight-medium">{{ r.label }}</td>
+                                <td class="text-end text-green font-weight-semibold">${{ r.rev|intcomma }}.00</td>
+                                <td class="text-end">{{ r.count }}</td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="3" class="text-center py-4 text-secondary">No records match the active filters.</td>
+                            </tr>
+                            {% endfor %}
+                            <tr class="bg-dark font-weight-bold" style="border-top: 2px solid rgba(255,255,255,0.15);">
+                                <td>Grand Total</td>
+                                <td class="text-end text-green">${{ month_total_rev|intcomma }}.00</td>
+                                <td class="text-end">{{ month_total_count }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    {% elif filters.pivot == 'weekday' %}
+                    <table class="table card-table table-vcenter text-nowrap table-hover">
+                        <thead>
+                            <tr>
+                                <th>saleday</th>
+                                <th class="text-end">Average Price</th>
+                                <th class="text-end">Count of Cars</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for r in weekday_pivot %}
+                            <tr>
+                                <td class="font-weight-medium">{{ r.day }}</td>
+                                <td class="text-end text-blue font-weight-semibold">${{ r.avg|intcomma }}.00</td>
+                                <td class="text-end">{{ r.count }}</td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="3" class="text-center py-4 text-secondary">No records match the active filters.</td>
+                            </tr>
+                            {% endfor %}
+                            <tr class="bg-dark font-weight-bold" style="border-top: 2px solid rgba(255,255,255,0.15);">
+                                <td>Grand Total</td>
+                                <td class="text-end text-blue">${{ weekday_grand_avg|intcomma }}.00</td>
+                                <td class="text-end">{{ weekday_total_count }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<!-- Load ApexCharts CDN -->
+<script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+<script>
+    function changePivot(pivotName) {
+        document.getElementById('pivot-input').value = pivotName;
+        document.getElementById('filter-form').submit();
+    }
+
+    document.addEventListener("DOMContentLoaded", function () {
+        let chartOptions = {};
+        const activePivot = "{{ filters.pivot }}";
+        
+        if (activePivot === 'brand') {
+            const categories = [{% for r in brand_pivot|slice:":10" %}"{{ r.make }}"{% if not forloop.last %}, {% endif %}{% endfor %}];
+            const data = [{% for r in brand_pivot|slice:":10" %}{{ r.rev }}{% if not forloop.last %}, {% endif %}{% endfor %}];
+            
+            chartOptions = {
+                series: [{ name: 'Revenue', data: data }],
+                colors: ['#00d2ff'],
+                chart: { type: 'bar', height: 280, toolbar: { show: false } },
+                plotOptions: { bar: { borderRadius: 4, columnWidth: '55%' } },
+                xaxis: { categories: categories },
+                grid: { strokeDashArray: 4 },
+                tooltip: { theme: 'dark', y: { formatter: (v) => '$' + v.toLocaleString() } }
+            };
+        } else if (activePivot === 'model') {
+            const categories = [{% for r in model_pivot|slice:":10" %}"{{ r.model }}"{% if not forloop.last %}, {% endif %}{% endfor %}];
+            const data = [{% for r in model_pivot|slice:":10" %}{{ r.count }}{% if not forloop.last %}, {% endif %}{% endfor %}];
+            
+            chartOptions = {
+                series: [{ name: 'Sales Volume', data: data }],
+                colors: ['#f59f00'],
+                chart: { type: 'bar', height: 280, toolbar: { show: false } },
+                plotOptions: { bar: { borderRadius: 4, columnWidth: '55%' } },
+                xaxis: { categories: categories },
+                grid: { strokeDashArray: 4 },
+                tooltip: { theme: 'dark' }
+            };
+        } else if (activePivot === 'month') {
+            const categories = [{% for r in month_pivot %}"{{ r.label }}"{% if not forloop.last %}, {% endif %}{% endfor %}];
+            const data = [{% for r in month_pivot %}{{ r.rev }}{% if not forloop.last %}, {% endif %}{% endfor %}];
+            
+            chartOptions = {
+                series: [{ name: 'Revenue', data: data }],
+                colors: ['#20c997'],
+                chart: { type: 'bar', height: 280, toolbar: { show: false } },
+                plotOptions: { bar: { borderRadius: 4, columnWidth: '40%' } },
+                xaxis: { categories: categories },
+                grid: { strokeDashArray: 4 },
+                tooltip: { theme: 'dark', y: { formatter: (v) => '$' + v.toLocaleString() } }
+            };
+        } else if (activePivot === 'weekday') {
+            const categories = [{% for r in weekday_pivot %}"{{ r.day }}"{% if not forloop.last %}, {% endif %}{% endfor %}];
+            const data = [{% for r in weekday_pivot %}{{ r.count }}{% if not forloop.last %}, {% endif %}{% endfor %}];
+            
+            chartOptions = {
+                series: [{ name: 'Sales Count', data: data }],
+                colors: ['#ae3ec9'],
+                chart: { type: 'bar', height: 280, toolbar: { show: false } },
+                plotOptions: { bar: { borderRadius: 4, columnWidth: '45%' } },
+                xaxis: { categories: categories },
+                grid: { strokeDashArray: 4 },
+                tooltip: { theme: 'dark' }
+            };
+        }
+        
+        if (chartOptions.series) {
+            new ApexCharts(document.querySelector("#pivot-chart"), chartOptions).render();
+        }
+// Load ApexCharts and Flatpickr
+    });
+</script>
+<!-- Include Flatpickr JS -->
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        // Initialize Flatpickr on our custom date fields
+        flatpickr(".flatpickr-date", {
+            dateFormat: "Y-m-d",
+            allowInput: true,
+            onChange: function(selectedDates, dateStr, instance) {
+                // Submit form when date changes to apply filters
+                document.getElementById('filter-form').submit();
+            }
+        });
+    });
+</script>
+{% endblock %}

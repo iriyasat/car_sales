@@ -1,0 +1,457 @@
+{% extends "base.html" %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}Dashboard | AutoSales Hub{% endblock %}
+{% block pretitle %}Overview{% endblock %}
+{% block pagetitle %}Sales Dashboard{% endblock %}
+
+{% block header_actions %}
+<a href="{% url 'cars:inventory' %}" class="btn btn-primary d-none d-sm-inline-block">
+    <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+        <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+        <path d="M12 5l0 14" />
+        <path d="M5 12l14 0" />
+    </svg>
+    Browse Inventory
+</a>
+{% endblock %}
+
+{% block content %}
+<!-- Metrics Cards Row -->
+<div class="row row-cards">
+    <!-- Total Sales -->
+    <div class="col-sm-6 col-lg-3">
+        <div class="card card-sm">
+            <div class="card-body">
+                <div class="row align-items-center">
+                    <div class="col-auto">
+                        <span class="bg-primary text-white avatar">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                                <path d="M16.7 8a3 3 0 0 0 -2.7 -2h-4a3 3 0 0 0 0 6h4a3 3 0 0 1 0 6h-4a3 3 0 0 1 -2.7 -2" />
+                                <path d="M12 3v3m0 12v3" />
+                            </svg>
+                        </span>
+                    </div>
+                    <div class="col">
+                        <div class="h2 m-0 font-weight-bold">
+                            {{ total_sales }}
+                        </div>
+                        <div class="text-secondary small">
+                            Total Car Sales
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Avg Price -->
+    <div class="col-sm-6 col-lg-3">
+        <div class="card card-sm">
+            <div class="card-body">
+                <div class="row align-items-center">
+                    <div class="col-auto">
+                        <span class="bg-green text-white avatar">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                                <path d="M9 14c0 1.657 2.686 3 6 3s6 -1.343 6 -3s-2.686 -3 -6 -3s-6 -1.343 -6 -3s2.686 -3 6 -3s6 1.343 6 3" />
+                                <path d="M3 12h1m8 -9v1m0 16v1" />
+                            </svg>
+                        </span>
+                    </div>
+                    <div class="col">
+                        <div class="h2 m-0 font-weight-bold">
+                            ${{ stats.avg_price|floatformat:0|intcomma }}
+                        </div>
+                        <div class="text-secondary small">
+                            Average Selling Price
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Total Volume -->
+    <div class="col-sm-6 col-lg-3">
+        <div class="card card-sm">
+            <div class="card-body">
+                <div class="row align-items-center">
+                    <div class="col-auto">
+                        <span class="bg-indigo text-white avatar">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                                <path d="M6 19m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" />
+                                <path d="M17 19m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" />
+                                <path d="M17 19h2a2 2 0 0 0 2 -2v-4h-18v4a2 2 0 0 0 2 2h2" />
+                                <path d="M19 13v-3a1 1 0 0 0 -1 -1h-12a1 1 0 0 0 -1 1v3" />
+                            </svg>
+                        </span>
+                    </div>
+                    <div class="col">
+                        <div class="h2 m-0 font-weight-bold">
+                            ${{ stats.total_volume|intcomma }}
+                        </div>
+                        <div class="text-secondary small">
+                            Total Revenue (Sum)
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Avg Odometer / Condition -->
+    <div class="col-sm-6 col-lg-3">
+        <div class="card card-sm">
+            <div class="card-body">
+                <div class="row align-items-center">
+                    <div class="col-auto">
+                        <span class="bg-yellow text-white avatar">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                                <path d="M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0" />
+                                <path d="M12 12m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0" />
+                                <path d="M12 3v2" />
+                                <path d="M12 19v2" />
+                                <path d="M3 12h2" />
+                                <path d="M19 12h2" />
+                            </svg>
+                        </span>
+                    </div>
+                    <div class="col">
+                        <div class="h2 m-0 font-weight-bold">
+                            {{ stats.avg_condition|floatformat:1 }} <span class="fs-4 font-weight-normal text-secondary">/50</span>
+                        </div>
+                        <div class="text-secondary small">
+                            Avg Quality Rating
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Charts Row 1: Model & Transmission Distribution -->
+<div class="row row-cards mt-3">
+    <!-- Model Distribution Card -->
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-body">
+                <h3 class="card-title">Model Distribution</h3>
+                <div id="chart-models" style="height: 350px;"></div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Transmission Stats Card -->
+    <div class="col-lg-4">
+        <div class="card">
+            <div class="card-body">
+                <h3 class="card-title">Transmission Distribution</h3>
+                <div id="chart-transmission" style="height: 350px;"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Charts Row 2: Brand Sales & Brand Overview -->
+<div class="row row-cards mt-3">
+    <!-- Brand Sales Chart -->
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-body">
+                <h3 class="card-title">Top 10 Brands by Sales Count</h3>
+                <div id="chart-brands" style="height: 350px;"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Top Brands Overview -->
+    <div class="col-lg-4">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">Top Selling Brands (Share & Price)</h3>
+            </div>
+            <div class="card-body">
+                <div class="divide-y">
+                    {% for brand in top_makes %}
+                    <div>
+                        <div class="row align-items-center">
+                            <div class="col">
+                                <div class="font-weight-medium">{{ brand.make }}</div>
+                                <div class="text-secondary small">Avg: ${{ brand.avg_price|floatformat:0|intcomma }}</div>
+                            </div>
+                            <div class="col-auto">
+                                <span class="badge bg-primary-lt fs-4 px-2 py-1">{{ brand.count }} sold</span>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Tables Row 3: Recent Sales & Regional Markets -->
+<div class="row row-cards mt-3">
+    <!-- Recent Sales Table -->
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">Recent Transactions</h3>
+            </div>
+            <div class="table-responsive">
+                <table class="table card-table table-vcenter text-nowrap datatable table-hover">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Vehicle</th>
+                            <th>VIN</th>
+                            <th>Trans.</th>
+                            <th>Condition</th>
+                            <th>Selling Price</th>
+                            <th>Sale Date</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for sale in recent_sales %}
+                        <tr>
+                            <td><span class="text-secondary">#{{ sale.id }}</span></td>
+                            <td>
+                                <div class="font-weight-medium">{{ sale.year }} {{ sale.make }}</div>
+                                <div class="text-secondary small">{{ sale.model }} {{ sale.trim }}</div>
+                            </td>
+                            <td><code>{{ sale.vin }}</code></td>
+                            <td>
+                                <span class="badge {% if sale.transmission == 'automatic' %}bg-blue-lt{% else %}bg-purple-lt{% endif %}">
+                                    {{ sale.transmission|title }}
+                                </span>
+                            </td>
+                            <td>
+                                <div class="row align-items-center g-2">
+                                    <div class="col-auto">{{ sale.condition|floatformat:1 }}</div>
+                                    <div class="col">
+                                        <div class="progress progress-xs">
+                                            <div class="progress-bar bg-yellow" style="width: {{ sale.condition|add:sale.condition|floatformat:0 }}%"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="font-weight-medium text-green">
+                                ${{ sale.sellingprice|intcomma }}
+                            </td>
+                            <td>{{ sale.saledate }}</td>
+                            <td>
+                                <a href="{% url 'cars:car_detail' sale.pk %}" class="btn btn-outline-primary btn-sm btn-pill">
+                                    View
+                                </a>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="8" class="text-center py-4">
+                                <p class="text-secondary">No recent transactions found.</p>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Top States Overview -->
+    <div class="col-lg-4">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">Top Regional Markets (States)</h3>
+            </div>
+            <div class="card-body">
+                <div class="divide-y">
+                    {% for state in state_stats %}
+                    <div>
+                        <div class="row align-items-center">
+                            <div class="col">
+                                <div class="font-weight-medium text-uppercase">{{ state.state }}</div>
+                                <div class="text-secondary small">Active Market</div>
+                            </div>
+                            <div class="col-auto">
+                                <span class="badge bg-green-lt fs-4 px-2 py-1">{{ state.count }} sales</span>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<!-- Load ApexCharts CDN -->
+<script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        // --- 1. Brands Chart (Bar Chart with Neon Cyan Gradient) ---
+        const brandLabels = [{% for item in brand_counts %}"{{ item.make }}"{% if not forloop.last %}, {% endif %}{% endfor %}];
+        const brandValues = [{% for item in brand_counts %}{{ item.count }}{% if not forloop.last %}, {% endif %}{% endfor %}];
+        
+        var optionsBrands = {
+            series: [{
+                name: 'Cars Sold',
+                data: brandValues
+            }],
+            chart: {
+                type: 'bar',
+                height: 350,
+                parentHeightOffset: 0,
+                toolbar: {
+                    show: false,
+                },
+                animations: {
+                    enabled: true
+                }
+            },
+            plotOptions: {
+                bar: {
+                    borderRadius: 4,
+                    horizontal: false,
+                    columnWidth: '55%',
+                }
+            },
+            dataLabels: {
+                enabled: false
+            },
+            colors: ['#00d2ff'],
+            fill: {
+                type: 'gradient',
+                gradient: {
+                    shade: 'dark',
+                    type: "vertical",
+                    shadeIntensity: 0.5,
+                    gradientToColors: ['#4facfe'], // Cyan to Neon Blue
+                    inverseColors: true,
+                    opacityFrom: 0.85,
+                    opacityTo: 0.95,
+                    stops: [0, 100]
+                }
+            },
+            xaxis: {
+                categories: brandLabels,
+            },
+            grid: {
+                strokeDashArray: 4,
+            },
+            tooltip: {
+                theme: 'dark'
+            }
+        };
+
+        var chartBrands = new ApexCharts(document.querySelector("#chart-brands"), optionsBrands);
+        chartBrands.render();
+
+        // --- 2. Model Distribution Chart (Donut Chart) ---
+        const modelLabels = [{% for item in model_distribution %}"{{ item.name }}"{% if not forloop.last %}, {% endif %}{% endfor %}];
+        const modelValues = [{% for item in model_distribution %}{{ item.count }}{% if not forloop.last %}, {% endif %}{% endfor %}];
+
+        var optionsModels = {
+            series: modelValues,
+            chart: {
+                type: 'donut',
+                height: 335,
+            },
+            labels: modelLabels,
+            colors: ['#00d2ff', '#ff007f', '#ae3ec9', '#f59f00', '#20c997', '#d63939', '#17a2b8', '#6610f2', '#e83e8c'],
+            stroke: {
+                colors: ['#1d273b']
+            },
+            legend: {
+                position: 'bottom',
+                horizontalAlign: 'center',
+                labels: {
+                    colors: '#94a3b8'
+                }
+            },
+            tooltip: {
+                theme: 'dark'
+            },
+            dataLabels: {
+                enabled: true,
+                formatter: function (val, opts) {
+                    return opts.w.globals.series[opts.seriesIndex] + " u";
+                }
+            },
+            plotOptions: {
+                pie: {
+                    donut: {
+                        labels: {
+                            show: true,
+                            name: {
+                                show: true,
+                                color: '#94a3b8'
+                            },
+                            value: {
+                                show: true,
+                                color: '#f8fafc',
+                                formatter: function (val) {
+                                    return val + " cars";
+                                }
+                            },
+                            total: {
+                                show: true,
+                                label: 'Total Sales',
+                                color: '#94a3b8',
+                                formatter: function (w) {
+                                    return w.globals.seriesTotals.reduce((a, b) => a + b, 0) + " cars";
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        };
+
+        var chartModels = new ApexCharts(document.querySelector("#chart-models"), optionsModels);
+        chartModels.render();
+
+        // --- 3. Transmission Chart (Donut Chart) ---
+        const transLabels = [{% for item in transmission_stats %}"{{ item.transmission|title }}"{% if not forloop.last %}, {% endif %}{% endfor %}];
+        const transValues = [{% for item in transmission_stats %}{{ item.count }}{% if not forloop.last %}, {% endif %}{% endfor %}];
+
+        var optionsTrans = {
+            series: transValues,
+            chart: {
+                type: 'donut',
+                height: 320,
+            },
+            labels: transLabels,
+            colors: ['#00d2ff', '#ff007f'], // Cyberpunk Cyan & Cyberpunk Hot Pink
+            stroke: {
+                colors: ['#1d273b']
+            },
+            legend: {
+                position: 'bottom',
+                labels: {
+                    colors: '#94a3b8'
+                }
+            },
+            tooltip: {
+                theme: 'dark'
+            },
+            dataLabels: {
+                enabled: true,
+                formatter: function (val) {
+                    return val.toFixed(1) + "%"
+                }
+            }
+        };
+
+        var chartTrans = new ApexCharts(document.querySelector("#chart-transmission"), optionsTrans);
+        chartTrans.render();
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,236 @@
+{% extends "base.html" %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}Inventory | AutoSales Hub{% endblock %}
+{% block pretitle %}Database{% endblock %}
+{% block pagetitle %}Vehicle Inventory{% endblock %}
+
+{% block content %}
+<!-- Search & Filters Card -->
+<div class="card mb-3">
+    <div class="card-header">
+        <h3 class="card-title">Filter & Search</h3>
+    </div>
+    <div class="card-body">
+        <form method="get" action="{% url 'cars:inventory' %}">
+            <div class="row g-3">
+                <!-- Search term -->
+                <div class="col-md-4">
+                    <label class="form-label">Search VIN / Seller / Model</label>
+                    <input type="text" name="search" class="form-control" placeholder="Enter keywords..." value="{{ filters.search }}">
+                    {% if is_vin_search %}
+                        <div class="mt-2">
+                            {% if is_index_match %}
+                                <span class="badge bg-green-lt px-2 py-1">✨ Indexed VIN Match!</span>
+                            {% else %}
+                                <span class="badge bg-yellow-lt px-2 py-1">VIN Detected</span>
+                            {% endif %}
+                        </div>
+                    {% endif %}
+                </div>
+                <!-- Make -->
+                <div class="col-md-2">
+                    <label class="form-label">Make</label>
+                    <select name="make" class="form-select">
+                        <option value="">All Makes</option>
+                        {% for make in makes %}
+                        <option value="{{ make }}" {% if filters.make == make %}selected{% endif %}>{{ make }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <!-- Year -->
+                <div class="col-md-2">
+                    <label class="form-label">Year</label>
+                    <select name="year" class="form-select">
+                        <option value="">All Years</option>
+                        {% for yr in years %}
+                        <option value="{{ yr }}" {% if filters.year|slugify == yr|slugify %}selected{% endif %}>{{ yr }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <!-- Transmission -->
+                <div class="col-md-2">
+                    <label class="form-label">Transmission</label>
+                    <select name="transmission" class="form-select">
+                        <option value="">All</option>
+                        {% for trans in transmissions %}
+                        <option value="{{ trans }}" {% if filters.transmission == trans %}selected{% endif %}>{{ trans|title }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <!-- Color -->
+                <div class="col-md-2">
+                    <label class="form-label">Color</label>
+                    <select name="color" class="form-select">
+                        <option value="">All</option>
+                        {% for color in colors %}
+                        <option value="{{ color }}" {% if filters.color == color %}selected{% endif %}>{{ color }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <!-- Sort options and Submit Buttons -->
+                <div class="col-md-4">
+                    <label class="form-label">Sort By</label>
+                    <select name="sort" class="form-select">
+                        <option value="-saledate" {% if filters.sort == '-saledate' %}selected{% endif %}>Sale Date: Newest First</option>
+                        <option value="saledate" {% if filters.sort == 'saledate' %}selected{% endif %}>Sale Date: Oldest First</option>
+                        <option value="-sellingprice" {% if filters.sort == '-sellingprice' %}selected{% endif %}>Price: High to Low</option>
+                        <option value="sellingprice" {% if filters.sort == 'sellingprice' %}selected{% endif %}>Price: Low to High</option>
+                        <option value="-year" {% if filters.sort == '-year' %}selected{% endif %}>Year: Newest First</option>
+                        <option value="year" {% if filters.sort == 'year' %}selected{% endif %}>Year: Oldest First</option>
+                        <option value="odometer" {% if filters.sort == 'odometer' %}selected{% endif %}>Mileage: Low to High</option>
+                        <option value="-odometer" {% if filters.sort == '-odometer' %}selected{% endif %}>Mileage: High to Low</option>
+                        <option value="-condition" {% if filters.sort == '-condition' %}selected{% endif %}>Condition: Best First</option>
+                    </select>
+                </div>
+                
+                <div class="col-md-8 d-flex align-items-end justify-content-end">
+                    <div class="btn-list">
+                        <a href="{% url 'cars:inventory' %}" class="btn btn-outline-secondary">
+                            Reset Filters
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                                <path d="M10 10m-7 0a7 7 0 1 0 14 0a7 7 0 1 0 -14 0" />
+                                <path d="M21 21l-6 -6" />
+                            </svg>
+                            Apply Filters
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+{% if is_index_match %}
+<div class="alert alert-info alert-important mb-3" role="alert">
+    <div class="d-flex">
+        <div class="me-2">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon alert-icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0" /><path d="M12 9h.01" /><path d="M11 12h1v4h1" /></svg>
+        </div>
+        <div>
+            <strong>Database Index Search:</strong> Query executed in O(1) time complexity utilizing the B-Tree index built on the <code>vin</code> column.
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Inventory Results Card -->
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h3 class="card-title">Inventory List</h3>
+        <span class="text-secondary small">Found {{ page_obj.paginator.count }} vehicle sales</span>
+    </div>
+    <div class="table-responsive">
+        <table class="table card-table table-vcenter text-nowrap datatable table-hover">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Vehicle Details</th>
+                    <th>VIN</th>
+                    <th>Odometer</th>
+                    <th>Trans.</th>
+                    <th>Condition</th>
+                    <th>MMR</th>
+                    <th>Selling Price</th>
+                    <th>Sale Date</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for car in page_obj %}
+                <tr>
+                    <td><span class="text-secondary">#{{ car.id }}</span></td>
+                    <td>
+                        <div class="font-weight-medium">{{ car.year }} {{ car.make }}</div>
+                        <div class="text-secondary small">{{ car.model }} | {{ car.trim }} | {{ car.body }}</div>
+                    </td>
+                    <td><code>{{ car.vin }}</code></td>
+                    <td>{{ car.odometer|intcomma }} mi</td>
+                    <td>
+                        <span class="badge {% if car.transmission == 'automatic' %}bg-blue-lt{% else %}bg-purple-lt{% endif %}">
+                            {{ car.transmission|title }}
+                        </span>
+                    </td>
+                    <td>
+                        <div class="d-flex align-items-center">
+                            <span class="me-2">{{ car.condition|floatformat:1 }}</span>
+                            <div class="progress progress-xs w-100" style="min-width: 50px;">
+                                <div class="progress-bar bg-yellow" style="width: {{ car.condition|add:car.condition|floatformat:0 }}%"></div>
+                            </div>
+                        </div>
+                    </td>
+                    <td>${{ car.mmr|intcomma }}</td>
+                    <td class="font-weight-bold text-green">${{ car.sellingprice|intcomma }}</td>
+                    <td>{{ car.saledate }} ({{ car.saleday }})</td>
+                    <td>
+                        <a href="{% url 'cars:car_detail' car.pk %}" class="btn btn-outline-primary btn-sm btn-pill">
+                            Details
+                        </a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="10" class="text-center py-4">
+                        <div class="empty">
+                            <p class="empty-title">No vehicles found</p>
+                            <p class="empty-subtitle text-secondary">
+                                Try adjusting your search keywords or filters.
+                            </p>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    
+    <!-- Card Footer for Pagination -->
+    {% if page_obj.has_other_pages %}
+    <div class="card-footer d-flex align-items-center">
+        <p class="m-0 text-secondary d-none d-sm-inline">
+            Showing <span>{{ page_obj.start_index }}</span> to <span>{{ page_obj.end_index }}</span> of <span>{{ page_obj.paginator.count }}</span> entries
+        </p>
+        <ul class="pagination m-0 ms-auto">
+            <!-- Previous Button -->
+            <li class="page-item {% if not page_obj.has_previous %}disabled{% endif %}">
+                <a class="page-link" href="{% if page_obj.has_previous %}?page={{ page_obj.previous_page_number }}&search={{ filters.search }}&make={{ filters.make }}&model={{ filters.model }}&year={{ filters.year }}&transmission={{ filters.transmission }}&color={{ filters.color }}&sort={{ filters.sort }}{% else %}#{% endif %}" tabindex="-1" aria-disabled="true">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                        <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                        <path d="M15 6l-6 6l6 6" />
+                    </svg>
+                    prev
+                </a>
+            </li>
+            
+            <!-- Page Number Links -->
+            <!-- We only display current page and +/- 2 neighbors to prevent too many page links -->
+            {% for page_num in page_obj.paginator.page_range %}
+                {% if page_num == page_obj.number %}
+                    <li class="page-item active"><a class="page-link" href="#">{{ page_num }}</a></li>
+                {% elif page_num > page_obj.number|add:-3 and page_num < page_obj.number|add:3 %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_num }}&search={{ filters.search }}&make={{ filters.make }}&model={{ filters.model }}&year={{ filters.year }}&transmission={{ filters.transmission }}&color={{ filters.color }}&sort={{ filters.sort }}">{{ page_num }}</a>
+                    </li>
+                {% endif %}
+            {% endfor %}
+            
+            <!-- Next Button -->
+            <li class="page-item {% if not page_obj.has_next %}disabled{% endif %}">
+                <a class="page-link" href="{% if page_obj.has_next %}?page={{ page_obj.next_page_number }}&search={{ filters.search }}&make={{ filters.make }}&model={{ filters.model }}&year={{ filters.year }}&transmission={{ filters.transmission }}&color={{ filters.color }}&sort={{ filters.sort }}{% else %}#{% endif %}">
+                    next
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                        <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                        <path d="M9 6l6 6l-6 6" />
+                    </svg>
+                </a>
+            </li>
+        </ul>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

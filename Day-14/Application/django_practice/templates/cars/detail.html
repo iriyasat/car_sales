@@ -1,0 +1,195 @@
+{% extends "base.html" %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}{{ car.year }} {{ car.make }} {{ car.model }} | AutoSales Hub{% endblock %}
+
+{% block pretitle %}Vehicle Details{% endblock %}
+{% block pagetitle %}{{ car.year }} {{ car.make }} {{ car.model }} <small class="text-secondary fs-4">{{ car.trim }}</small>{% endblock %}
+
+{% block header_actions %}
+<a href="{% url 'cars:inventory' %}" class="btn btn-outline-secondary">
+    <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+        <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+        <path d="M15 6l-6 6l6 6" />
+    </svg>
+    Back to Inventory
+</a>
+{% endblock %}
+
+{% block content %}
+<div class="row row-cards">
+    <!-- Left Column: Specs and Condition -->
+    <div class="col-lg-8">
+        <!-- Specs Card -->
+        <div class="card mb-3">
+            <div class="card-header">
+                <h3 class="card-title">Technical Specifications</h3>
+            </div>
+            <div class="card-body">
+                <div class="row g-4">
+                    <!-- VIN -->
+                    <div class="col-md-6">
+                        <div class="text-secondary small font-weight-medium mb-1">VIN (Vehicle Identification Number)</div>
+                        <div class="fs-3 font-weight-bold">
+                            <code>{{ car.vin }}</code>
+                        </div>
+                    </div>
+                    <!-- Body Style -->
+                    <div class="col-md-6">
+                        <div class="text-secondary small font-weight-medium mb-1">Body Style</div>
+                        <div class="fs-3 font-weight-semibold">{{ car.body }}</div>
+                    </div>
+                    <!-- Transmission -->
+                    <div class="col-md-6">
+                        <div class="text-secondary small font-weight-medium mb-1">Transmission</div>
+                        <div class="fs-3">
+                            <span class="badge {% if car.transmission == 'automatic' %}bg-blue{% else %}bg-purple{% endif %} fs-3 px-3 py-2">
+                                {{ car.transmission|title }}
+                            </span>
+                        </div>
+                    </div>
+                    <!-- Odometer -->
+                    <div class="col-md-6">
+                        <div class="text-secondary small font-weight-medium mb-1">Odometer (Mileage)</div>
+                        <div class="fs-3 font-weight-bold">{{ car.odometer|intcomma }} miles</div>
+                    </div>
+                    <!-- Color -->
+                    <div class="col-md-6">
+                        <div class="text-secondary small font-weight-medium mb-1">Exterior Color</div>
+                        <div class="d-flex align-items-center">
+                            <span class="d-inline-block rounded-circle border me-2" style="width: 16px; height: 16px; background-color: {{ car.color|lower }};"></span>
+                            <span class="fs-3 font-weight-semibold">{{ car.color }}</span>
+                        </div>
+                    </div>
+                    <!-- Interior -->
+                    <div class="col-md-6">
+                        <div class="text-secondary small font-weight-medium mb-1">Interior Color</div>
+                        <div class="d-flex align-items-center">
+                            <span class="d-inline-block rounded-circle border me-2" style="width: 16px; height: 16px; background-color: {{ car.interior|lower }};"></span>
+                            <span class="fs-3 font-weight-semibold">{{ car.interior }}</span>
+                        </div>
+                    </div>
+                    <!-- State -->
+                    <div class="col-md-6">
+                        <div class="text-secondary small font-weight-medium mb-1">Registration State</div>
+                        <div class="fs-3 font-weight-bold text-uppercase">{{ car.state }}</div>
+                    </div>
+                    <!-- Seller -->
+                    <div class="col-md-6">
+                        <div class="text-secondary small font-weight-medium mb-1">Seller / Dealer</div>
+                        <div class="fs-3 text-truncate" title="{{ car.seller }}">{{ car.seller }}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Condition Card -->
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">Condition & Quality Index</h3>
+            </div>
+            <div class="card-body">
+                <div class="row align-items-center">
+                    <div class="col-auto text-center py-2 px-4 bg-yellow-lt rounded">
+                        <div class="fs-1 font-weight-extrabold text-yellow">{{ car.condition|floatformat:1 }}</div>
+                        <div class="text-secondary small font-weight-medium">Score / 50.0</div>
+                    </div>
+                    <div class="col ms-3">
+                        <div class="font-weight-medium mb-2">Overall Quality Rating</div>
+                        <div class="progress progress-md">
+                            <div class="progress-bar bg-yellow" style="width: {{ car.condition|add:car.condition|floatformat:0 }}%" role="progressbar" aria-valuenow="{{ car.condition }}" aria-valuemin="0" aria-valuemax="50"></div>
+                        </div>
+                        <div class="d-flex justify-content-between text-secondary small mt-1">
+                            <span>0.0 (Poor)</span>
+                            <span>25.0 (Average)</span>
+                            <span>50.0 (Excellent)</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Right Column: Pricing, Sale info, Recommendations -->
+    <div class="col-lg-4">
+        <!-- Pricing Card -->
+        <div class="card mb-3">
+            <div class="card-body text-center py-4">
+                <div class="text-secondary small font-weight-medium mb-1">SELLING PRICE</div>
+                <div class="fs-1 font-weight-extrabold text-green mb-3">${{ car.sellingprice|intcomma }}</div>
+                
+                <hr class="my-3">
+                
+                <div class="row g-2">
+                    <div class="col">
+                        <div class="text-secondary small font-weight-medium">MMR Valuation</div>
+                        <div class="fs-3 font-weight-semibold text-secondary">${{ car.mmr|intcomma }}</div>
+                    </div>
+                    <div class="col">
+                        <div class="text-secondary small font-weight-medium">Deal Status</div>
+                        <div>
+                            {% if car.sellingprice <= car.mmr %}
+                                <span class="badge bg-green-lt px-2 py-1 fs-4">Good Deal</span>
+                            {% else %}
+                                <span class="badge bg-warning-lt px-2 py-1 fs-4">Premium Deal</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sale Metadata Card -->
+        <div class="card mb-3">
+            <div class="card-header">
+                <h3 class="card-title">Sale Timeline</h3>
+            </div>
+            <div class="card-body">
+                <div class="divide-y">
+                    <div>
+                        <div class="row">
+                            <div class="col text-secondary">Transaction Date</div>
+                            <div class="col-auto font-weight-medium">{{ car.saledate }}</div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="row">
+                            <div class="col text-secondary">Transaction Day</div>
+                            <div class="col-auto font-weight-medium">{{ car.saleday }}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recommendations Card -->
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">Similar Brand Stock</h3>
+            </div>
+            <div class="card-body">
+                <div class="divide-y">
+                    {% for sim in similar_cars %}
+                    <div>
+                        <div class="row align-items-center">
+                            <div class="col">
+                                <div class="font-weight-medium">
+                                    <a href="{% url 'cars:car_detail' sim.pk %}" class="text-reset">
+                                        {{ sim.year }} {{ sim.make }} {{ sim.model }}
+                                    </a>
+                                </div>
+                                <div class="text-secondary small">Cond: {{ sim.condition|floatformat:1 }} | {{ sim.transmission|title }}</div>
+                            </div>
+                            <div class="col-auto text-green font-weight-semibold">
+                                ${{ sim.sellingprice|intcomma }}
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
