@@ -29,14 +29,16 @@
                         <span class="bg-primary text-white avatar">
                             <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                                 <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                                <path d="M16.7 8a3 3 0 0 0 -2.7 -2h-4a3 3 0 0 0 0 6h4a3 3 0 0 1 0 6h-4a3 3 0 0 1 -2.7 -2" />
-                                <path d="M12 3v3m0 12v3" />
+                                <path d="M6 19m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" />
+                                <path d="M17 19m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" />
+                                <path d="M17 19h2a2 2 0 0 0 2 -2v-4h-18v4a2 2 0 0 0 2 2h2" />
+                                <path d="M19 13v-3a1 1 0 0 0 -1 -1h-12a1 1 0 0 0 -1 1v3" />
                             </svg>
                         </span>
                     </div>
                     <div class="col">
                         <div class="h2 m-0 font-weight-bold">
-                            {{ total_sales }}
+                            {{ total_sales|intcomma }}
                         </div>
                         <div class="text-secondary small">
                             Total Car Sales
@@ -81,10 +83,8 @@
                         <span class="bg-indigo text-white avatar">
                             <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                                 <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                                <path d="M6 19m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" />
-                                <path d="M17 19m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" />
-                                <path d="M17 19h2a2 2 0 0 0 2 -2v-4h-18v4a2 2 0 0 0 2 2h2" />
-                                <path d="M19 13v-3a1 1 0 0 0 -1 -1h-12a1 1 0 0 0 -1 1v3" />
+                                <path d="M16.7 8a3 3 0 0 0 -2.7 -2h-4a3 3 0 0 0 0 6h4a3 3 0 0 1 0 6h-4a3 3 0 0 1 -2.7 -2" />
+                                <path d="M12 3v3m0 12v3" />
                             </svg>
                         </span>
                     </div>
