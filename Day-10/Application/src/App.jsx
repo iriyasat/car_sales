@@ -8,7 +8,6 @@ import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import dayjs from 'dayjs';
-import salesDataRaw from './data/car_sales_500.json';
 import './App.css';
 
 // MUI Dark Theme configuration to match our dashboard aesthetics
@@ -127,7 +126,8 @@ export default function App() {
   };
 
   const [currentTab, setCurrentTab] = useState(getTabFromHash());
-  const [salesData] = useState(salesDataRaw);
+  const [salesData, setSalesData] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [navMenuAnchorEl, setNavMenuAnchorEl] = useState(null);
   const navTabs = [
     { value: 'dashboard', label: 'Dashboard' },
@@ -137,6 +137,23 @@ export default function App() {
   const navMenuOpen = Boolean(navMenuAnchorEl);
 
   React.useEffect(() => {
+    setLoading(true);
+    fetch('./vehicle_sales_db.json')
+      .then(res => {
+        if (!res.ok) {
+          throw new Error(`HTTP error! status: ${res.status}`);
+        }
+        return res.json();
+      })
+      .then(data => {
+        setSalesData(data);
+        setLoading(false);
+      })
+      .catch(err => {
+        console.error("Failed to load vehicle sales data:", err);
+        setLoading(false);
+      });
+
     const handleHashChange = () => {
       setCurrentTab(getTabFromHash());
     };
@@ -228,7 +245,24 @@ export default function App() {
           </div>
         </div>
       </nav>
-      <main className="main-content"><div className="container">{renderContent()}</div></main>
+      <main className="main-content">
+        <div className="container">
+          {loading ? (
+            <div className="loading-container">
+              <div className="loading-card">
+                <div className="spinner"></div>
+                <h2>Loading Sales Database</h2>
+                <p>Loading and parsing 100,000 verified clean records...</p>
+                <div className="progress-bar-container">
+                  <div className="progress-bar-fill"></div>
+                </div>
+              </div>
+            </div>
+          ) : (
+            renderContent()
+          )}
+        </div>
+      </main>
       <footer className="footer">
         <div className="container footer-container">
           <div><strong>Car Sales Reporting System</strong> — Day 10<span className="footer-subtitle">Built by Ibrahim Hasan & Marzia</span></div>
@@ -236,7 +270,9 @@ export default function App() {
             <a href="#data">Data Source</a>
             <a href="#reports">Excel Pivots</a>
             <span className="footer-separator">|</span>
-            <span className="footer-badge"><Sparkles size={12} /> 500 Records Verified</span>
+            <span className="footer-badge">
+              <Sparkles size={12} /> {loading ? 'Loading...' : `${salesData.length.toLocaleString()} Records Verified`}
+            </span>
           </div>
         </div>
       </footer>
@@ -277,17 +313,30 @@ function DashboardPage({ salesData }) {
 
   const monthlyData = useMemo(() => {
     const map = {};
-    const months = { '12': 'Dec', '01': 'Jan', '02': 'Feb', '07': 'Jul' };
     salesData.forEach(c => {
       if (!c.saledate) return;
       const pts = c.saledate.split('-');
       if (pts.length >= 2) {
-        const lbl = `${pts[0]}-${months[pts[1]] || pts[1]}`;
-        map[lbl] = (map[lbl] || 0) + (c.sellingprice || 0);
+        const key = `${pts[0]}-${pts[1]}`;
+        map[key] = (map[key] || 0) + (c.sellingprice || 0);
       }
     });
-    const order = { '2014-Dec': 1, '2015-Jan': 2, '2015-Feb': 3, '2015-Jul': 4 };
-    return Object.entries(map).map(([name, value]) => ({ name, value })).sort((a,b) => (order[a.name] || 99) - (order[b.name] || 99));
+    
+    const months = {
+      '01': 'Jan', '02': 'Feb', '03': 'Mar', '04': 'Apr',
+      '05': 'May', '06': 'Jun', '07': 'Jul', '08': 'Aug',
+      '09': 'Sep', '10': 'Oct', '11': 'Nov', '12': 'Dec'
+    };
+
+    return Object.entries(map)
+      .sort((a, b) => a[0].localeCompare(b[0]))
+      .map(([key, value]) => {
+        const [year, month] = key.split('-');
+        return {
+          name: `${year}-${months[month] || month}`,
+          value
+        };
+      });
   }, [salesData]);
 
   const formatCurrency = (val) => val >= 1e6 ? `$${(val / 1e6).toFixed(2)}M` : val >= 1e3 ? `$${(val / 1e3).toFixed(0)}k` : `$${val}`;
@@ -470,6 +519,7 @@ function DashboardPage({ salesData }) {
 // 3. INVENTORY TABLE PAGE COMPONENT (SORT & PAGING)
 // ==========================================
 function DataPage({ salesData }) {
+  const [inputText, setInputText] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
   const [filterMake, setFilterMake] = useState('All');
   const [filterTrans, setFilterTrans] = useState('All');
@@ -478,23 +528,49 @@ function DataPage({ salesData }) {
   const [currentPage, setCurrentPage] = useState(1);
   const rowsPerPage = 20;
 
+  // Debounce the search term to eliminate keystroke lag
+  React.useEffect(() => {
+    const handler = setTimeout(() => {
+      setSearchTerm(inputText);
+    }, 250);
+    return () => clearTimeout(handler);
+  }, [inputText]);
+
   const uniqueMakes = useMemo(() => {
     const makes = new Set();
     salesData.forEach(c => { if (c.make) makes.add(c.make); });
     return ['All', ...Array.from(makes).sort()];
   }, [salesData]);
 
-  const isVinSearch = searchTerm.trim().length === 17;
-  const isIndexMatch = isVinSearch && salesData.some(c => c.vin && c.vin.toUpperCase() === searchTerm.trim().toUpperCase());
+  // Build a constant-time O(1) index map on mount/data change for VIN lookups
+  const vinIndexMap = useMemo(() => {
+    const map = new Map();
+    salesData.forEach((c, idx) => {
+      if (c.vin) {
+        map.set(c.vin.toUpperCase(), idx);
+      }
+    });
+    return map;
+  }, [salesData]);
+
+  const isVinSearch = inputText.trim().length === 17;
+  const isIndexMatch = useMemo(() => {
+    return isVinSearch && vinIndexMap.has(inputText.trim().toUpperCase());
+  }, [isVinSearch, vinIndexMap, inputText]);
 
   const processedData = useMemo(() => {
     let res = [...salesData];
     if (filterMake !== 'All') res = res.filter(c => c.make === filterMake);
     if (filterTrans !== 'All') res = res.filter(c => c.transmission === filterTrans.toLowerCase());
-    if (searchTerm.trim() !== '') {
-      const q = searchTerm.toLowerCase().trim();
-      res = isVinSearch ? res.filter(c => c.vin && c.vin.toLowerCase() === q) : res.filter(c => 
-        (c.make && c.make.toLowerCase().includes(q)) || (c.model && c.model.toLowerCase().includes(q)) || (c.year && c.year.toString().includes(q)) || (c.vin && c.vin.toLowerCase().includes(q))
+    
+    const term = searchTerm.trim().toLowerCase();
+    if (term !== '') {
+      const isSearchTermVin = term.length === 17;
+      res = isSearchTermVin ? res.filter(c => c.vin && c.vin.toLowerCase() === term) : res.filter(c => 
+        (c.make && c.make.toLowerCase().includes(term)) || 
+        (c.model && c.model.toLowerCase().includes(term)) || 
+        (c.year && c.year.toString().includes(term)) || 
+        (c.vin && c.vin.toLowerCase().includes(term))
       );
     }
     res.sort((a, b) => {
@@ -504,7 +580,7 @@ function DataPage({ salesData }) {
       return typeof valA === 'string' ? (sortDirection === 'asc' ? valA.localeCompare(valB) : valB.localeCompare(valA)) : (sortDirection === 'asc' ? valA - valB : valB - valA);
     });
     return res;
-  }, [salesData, searchTerm, filterMake, filterTrans, sortField, sortDirection, isVinSearch]);
+  }, [salesData, searchTerm, filterMake, filterTrans, sortField, sortDirection]);
 
 
   const totalRows = processedData.length;
@@ -529,7 +605,7 @@ function DataPage({ salesData }) {
         <div className="table-controls-inner">
           <div className="search-input-wrapper search-grow">
             <Search size={18} className="search-icon" />
-            <input type="text" placeholder="Search by Brand, Model, or VIN..." className="search-input" value={searchTerm} onChange={(e) => { setSearchTerm(e.target.value); setCurrentPage(1); }} />
+            <input type="text" placeholder="Search by Brand, Model, or VIN..." className="search-input" value={inputText} onChange={(e) => { setInputText(e.target.value); setCurrentPage(1); }} />
             {isVinSearch && (
               <div className={`vin-badge-absolute ${isIndexMatch ? 'vin-badge-match' : 'vin-badge-detected'}`}>
                 <Sparkles size={10} /> {isIndexMatch ? 'Indexed VIN Match!' : 'VIN Detected'}
@@ -665,13 +741,32 @@ function ReportPage({ salesData }) {
   const monthPivot = useMemo(() => {
     const map = {};
     filteredData.forEach(c => {
-      const lbl = getYearMonthLabel(c.saledate);
-      if (!map[lbl]) map[lbl] = { label: lbl, rev: 0, count: 0 };
-      map[lbl].rev += c.sellingprice || 0;
-      map[lbl].count += 1;
+      if (!c.saledate) return;
+      const pts = c.saledate.split('-');
+      if (pts.length >= 2) {
+        const key = `${pts[0]}-${pts[1]}`;
+        if (!map[key]) map[key] = { key, rev: 0, count: 0 };
+        map[key].rev += c.sellingprice || 0;
+        map[key].count += 1;
+      }
     });
-    const order = { '2014-Dec': 1, '2015-Jan': 2, '2015-Feb': 3, '2015-Jul': 4 };
-    return Object.values(map).sort((a,b) => (order[a.label] || 99) - (order[b.label] || 99));
+
+    const mNames = {
+      '01': 'Jan', '02': 'Feb', '03': 'Mar', '04': 'Apr',
+      '05': 'May', '06': 'Jun', '07': 'Jul', '08': 'Aug',
+      '09': 'Sep', '10': 'Oct', '11': 'Nov', '12': 'Dec'
+    };
+
+    return Object.values(map)
+      .sort((a, b) => a.key.localeCompare(b.key))
+      .map(m => {
+        const [year, month] = m.key.split('-');
+        return {
+          label: `${year}-${mNames[month] || month}`,
+          rev: m.rev,
+          count: m.count
+        };
+      });
   }, [filteredData]);
 
   const weekdayPivot = useMemo(() => {
