@@ -1,0 +1,150 @@
+Table Roles {
+  role_id int [pk, increment]
+  role_name varchar(50) [not null, unique]
+}
+
+Table Employees {
+  employee_id int [pk, increment]
+  role_id int [not null, ref: > Roles.role_id]
+  first_name varchar(50) [not null]
+  last_name varchar(50) [not null]
+  email varchar(100) [not null, unique]
+  phone varchar(20)
+
+  address varchar(150)
+  city varchar(50)
+  state varchar(50)
+  postal_code varchar(20)
+  date_of_birth date
+  status enum('Active', 'On Leave', 'Terminated') [default: 'Active']
+  hire_date date [not null, default: `now()`]
+  terminated_date date
+  commission_rate decimal(5,2) [not null, default: 0.00, note: 'CHECK(commission_rate >= 0)']
+  Indexes {
+    status
+    email
+  }
+}
+
+Table Customers {
+  customer_id int [pk, increment]
+  first_name varchar(50) [not null]
+  last_name varchar(50) [not null]
+  email varchar(100) [not null, unique]
+  phone varchar(20) [not null]
+  address varchar(150)
+  city varchar(50)
+  state varchar(50)
+  postal_code varchar(20)
+  Indexes {
+    email
+    last_name
+  }
+}
+
+Table VehicleModels {
+  model_id int [pk, increment]
+  make varchar(50) [not null]
+  model varchar(50) [not null]
+  trim varchar(50)
+  body_type varchar(30)
+  fuel_type varchar(30)
+}
+
+Table Vehicles {
+  vehicle_id int [pk, increment]
+  model_id int [not null, ref: > VehicleModels.model_id]
+  vin varchar(17) [not null, unique]
+  year int [not null, note: 'CHECK(year BETWEEN 1900 AND 2100)']
+  color varchar(30)
+  mileage int [not null, default: 0, note: 'CHECK(mileage >= 0)']
+  acquisition_cost decimal(10,2) [not null, note: 'CHECK(acquisition_cost >= 0)']
+  selling_price decimal(10,2) [not null, note: 'CHECK(selling_price >= 0)']
+  condition enum('New', 'Used', 'Certified Pre-Owned') [not null]
+  status enum('Available', 'Reserved', 'In Transit', 'Under Inspection', 'Sold') [default: 'Available']
+  Indexes {
+    status
+    year
+    vin
+  }
+}
+
+
+Table Leads {
+  lead_id int [pk, increment]
+  customer_id int [not null, ref: > Customers.customer_id]
+  vehicle_id int [ref: > Vehicles.vehicle_id]
+  employee_id int [not null, ref: > Employees.employee_id]
+  source varchar(50)
+  status enum('New', 'Contacted', 'Qualified', 'Negotiating', 'Won', 'Lost') [default: 'New']
+  notes text
+  created_at timestamp [default: `now()`]
+  updated_at timestamp [default: `now()`]
+  deleted_at timestamp [note: 'Used for soft delete']
+  Indexes {
+    status
+    created_at
+  }
+}
+
+Table LeadActivities {
+  activity_id int [pk, increment]
+  lead_id int [not null, ref: > Leads.lead_id]
+  employee_id int [not null, ref: > Employees.employee_id]
+  activity_type enum('Call', 'Email', 'Meeting', 'Test Drive', 'Note') [not null]
+  activity_date datetime [not null, default: `now()`]
+  details text
+  created_at timestamp [default: `now()`]
+}
+
+Table Sales {
+  sale_id int [pk, increment]
+  lead_id int [not null, unique, ref: - Leads.lead_id]
+  customer_id int [not null, ref: > Customers.customer_id]
+  employee_id int [not null, ref: > Employees.employee_id]
+  vehicle_id int [not null, unique, ref: - Vehicles.vehicle_id]
+  sale_date datetime [not null, default: `now()`]
+  base_price decimal(10,2) [not null, note: 'CHECK(base_price >= 0)']
+  discount_amount decimal(10,2) [default: 0, note: 'CHECK(discount_amount >= 0)']
+  tax_amount decimal(10,2) [default: 0, note: 'CHECK(tax_amount >= 0)']
+  total_amount decimal(10,2) [not null, note: 'CHECK(total_amount >= 0)']
+  commission_rate_applied decimal(5,2) [not null]
+  commission_earned decimal(10,2) [not null]
+  created_at timestamp [default: `now()`]
+  updated_at timestamp [default: `now()`]
+  Indexes {
+    sale_date
+  }
+}
+
+
+Table TradeIns {
+  trade_in_id int [pk, increment]
+  sale_id int [unique, ref: - Sales.sale_id]
+  vin varchar(17) [unique]
+  make varchar(50) [not null]
+  model varchar(50) [not null]
+  year int [not null, note: 'CHECK(year BETWEEN 1900 AND 2100)']
+  color varchar(30)
+  mileage int [note: 'CHECK(mileage >= 0)']
+  appraised_value decimal(10,2) [note: 'CHECK(appraised_value >= 0)']
+  allowance_amount decimal(10,2) [note: 'CHECK(allowance_amount >= 0)']
+  notes text
+}
+
+Table Payments {
+  payment_id int [pk, increment]
+  sale_id int [not null, ref: > Sales.sale_id]
+  payment_date datetime [not null, default: `now()`]
+  amount decimal(10,2) [not null, note: 'CHECK(amount > 0)']
+  payment_method enum('Cash', 'Credit Card', 'Bank Transfer', 'Check', 'Loan')
+  status enum('Pending', 'Completed', 'Failed', 'Refunded') [default: 'Pending']
+  transaction_reference varchar(100)
+
+  created_at timestamp [default: `now()`]
+  updated_at timestamp [default: `now()`]
+
+  Indexes {
+    sale_id
+  }
+}
